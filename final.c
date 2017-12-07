@@ -73,6 +73,7 @@ Matrix *mallMatrix(int rows, int cols){
 }
 
 void freeMatrix(Matrix *matrix){
+
 	int i = 0;
 
 	if(matrix == NULL){
@@ -465,43 +466,65 @@ void addNodeAndNeighbour(Matrix *graph, int src, int *deletedEdge){
  * getDir - finds the directions for the robot to move
  * findPath - creates the paths for each robot to follow
  */
-char *getDir(int src, int dest, int rows, int cols){
-	char *sol = (char *)malloc(sizeof(char) * 5);
-	memset(sol, '\0', 5);
+char *getDir(int src, int dest, int rows, int cols)
+{
+	char *sol = (char *)malloc(sizeof(char) * 16);
+	memset(sol, '\0', 16);
 
 	int srcRow = getRowIndex(src, rows, cols), srcCol = getColIndex(src, rows, cols), destRow = getRowIndex(dest, rows, cols), destCol = getColIndex(dest, rows, cols);
 
 	int rowDiff = srcRow - destRow;
 	int colDiff = srcCol - destCol;
 
-	if(rowDiff < 0 && colDiff == 0){
-		strcpy(sol, "South");
-	}else if(rowDiff < 0 && colDiff < 0){
-		strcpy(sol, "South East");
-	}else if(rowDiff < 0 && colDiff > 0){
-		strcpy(sol, "South West");
-	}else if(rowDiff > 0 && colDiff == 0){
-		strcpy(sol, "North");
-	}else if(rowDiff > 0 && colDiff > 0){
-		strcpy(sol, "North East");
-	}else if(rowDiff == 0 && colDiff > 0){
-		strcpy(sol, "East");
-	}else if(rowDiff == 0 && colDiff < 0){
-		strcpy(sol, "West");
-	}else{
-		strcpy(sol, "No Move");
+	if(rowDiff < 0 && colDiff == 0)
+	{
+		strcpy(sol, "Move North");
+	}
+	else if(rowDiff < 0 && colDiff < 0)
+	{
+		strcpy(sol, "Move Northwest");
+	}
+	else if(rowDiff < 0 && colDiff > 0)
+	{
+		strcpy(sol, "Move Northeast");
+	}
+	else if(rowDiff > 0 && colDiff == 0)
+	{
+		strcpy(sol, "Move South");
+	}
+	else if(rowDiff > 0 && colDiff > 0)
+	{
+		strcpy(sol, "Move Southwest");
+	}
+	else if(rowDiff == 0 && colDiff > 0)
+	{
+		strcpy(sol, "Move East");
+	}
+	else if(rowDiff == 0 && colDiff < 0)
+	{
+		strcpy(sol, "Move West");
+	}
+	else if(rowDiff > 0 && colDiff < 0)
+	{
+		strcpy(sol, "Move Southeast");
+	}
+	else
+	{
+		strcpy(sol, "Wait");
 	}
 	return sol;
 }
 
-void findPath(Matrix *graph, Matrix *room){
+void findPath(Matrix *graph, Matrix *room)
+{
 	int *path1 = NULL, *path2 = NULL, i = 0;
 	int source1 = 0, dest1 = 0, source2 = 0, dest2 = 0;
 	int deletedEdge[8];
 	char *direction = NULL;
 	int firstMove = 0;
 
-	for(i = 0; i < 8; i++){
+	for(i = 0; i < 8; i++)
+	{
 		deletedEdge[i] = -1;
 	}
 
@@ -516,27 +539,35 @@ void findPath(Matrix *graph, Matrix *room){
 
 	addNodeAndNeighbour(graph, source2, &deletedEdge[0]);
 
-	for(i = 0; i < 8; i++){
+	for(i = 0; i < 8; i++)
+	{
 		deletedEdge[i] = -1;
 	}
 
-	if(path1[0] != -1){
+	if(path1[0] != -1)
+	{
 		deleteNodeAndNeighbour(graph, dest1, &deletedEdge[0]);
 		firstMove = 1;
-	}else{
+	}
+	else
+	{
 		deleteNodeAndNeighbour(graph, source1, &deletedEdge[0]);
 	}
 
 	path2 = dijkstra(graph, source2, dest2);
 
-	if(path1[0] != -1){
-                addNodeAndNeighbour(graph, dest1, &deletedEdge[0]);
-	}else{
+	if(path1[0] != -1)
+	{
+		addNodeAndNeighbour(graph, dest1, &deletedEdge[0]);
+	}
+	else
+	{
 		addNodeAndNeighbour(graph, source1, &deletedEdge[0]);
 
-		if(path2[0] != -1){
-
-			for(i = 0; i < 8; i++){
+		if(path2[0] != -1)
+		{
+			for(i = 0; i < 8; i++)
+			{
 				deletedEdge[i] = -1;
 			}
 
@@ -547,64 +578,144 @@ void findPath(Matrix *graph, Matrix *room){
 		}
 	}
 
-	for(i = 0; i < 8; i++){
-                deletedEdge[i] = -1;
-        }
+	for(i = 0; i < 8; i++)
+	{
+		deletedEdge[i] = -1;
+	}
 
 
-	if(firstMove == 0){
+	if(firstMove == 0)
+	{
 		printf("Unable to move any robot\n");
-	}else if(path1[0] == -1){
+	}
+	else if(path1[0] == -1)
+	{
 		printf("Unable to first robot\n");
-	}else if(path2[0] == -1){
+	}
+	else if(path2[0] == -1)
+	{
 		printf("Unable to second robot\n");
 	}
-	if(firstMove == 1){
+
+	int count1 = 0, count2 = 0, repeat = 0;
+	char *prevDir = (char*)malloc(sizeof(char)*16);
+
+	if(firstMove == 1)
+	{
 		printf("First the Robot from %c will travel to %c by following these instructions:\n", START_1, END_1);
 
 		i = 1;
 		while(path1[i] != -1){
+			if(direction != NULL)
+				strcpy(prevDir, direction);
 			direction = getDir(path1[i], path1[i-1], room->rows, room->cols);
-			printf("%d: %s\n", i, direction);
+			if(strcmp(direction, prevDir) == 0)
+			{
+				repeat ++;
+			}
+			else
+			{
+				if(repeat == 0)
+					printf("\n%s", direction);
+				else
+				{
+					printf(" %d times\n%s", repeat+1, direction);
+					repeat = 0;
+				}
+			}
 			i++;
 			free(direction);
 		}
-        printf("End\n");
+		count1 = i-1;
 
 		printf("\n\nThen the Robot from %c will travel to %c by following these instructions:\n", START_2, END_2);
 		i = 1;
-		while(path2[i] != -1){
+		repeat = 0;
+		while(path2[i] != -1)
+		{
+			if(direction != NULL)
+				strcpy(prevDir, direction);
 			direction = getDir(path2[i], path2[i-1], room->rows, room->cols);
-			printf("%d: %s\n", i, direction);
+			if(strcmp(direction, prevDir) == 0)
+			{
+				repeat ++;
+			}
+			else
+			{
+				if(repeat == 0)
+					printf("\n%s", direction);
+				else
+				{
+					printf(" %d times\n%s", repeat+1, direction);
+					repeat = 0;
+				}
+			}
 			i++;
 			free(direction);
 		}
-        printf("End\n");
+		count2 = i-1;
 
-	}else if(firstMove == 2){
+	}
+	else if(firstMove == 2)
+	{
 		printf("First the Robot from %c will travel to %c by following these instructions\n", START_2, END_2);
 
                 i = 1;
-                while(path2[i] != -1){
-                        direction = getDir(path2[i], path2[i-1], room->rows, room->cols);
-            				printf("%d: %s\n", i, direction);
-                        i++;
-                        free(direction);
+                repeat = 0;
+                while(path2[i] != -1)
+                {
+        				direction = getDir(path2[i], path2[i-1], room->rows, room->cols);
+        				if(strcmp(direction, prevDir) == 0)
+        				{
+        					repeat ++;
+        				}
+        				else
+        				{
+        					if(repeat == 0)
+        						printf("%s\n", direction);
+        					else
+        					{
+        						printf("%s %d times\n%s\n", prevDir, repeat+1, direction);
+        						repeat = 0;
+        					}
+        				}
+        				i++;
+        				strcpy(prevDir, direction);
+        				free(direction);
                 }
-                printf("End\n");
+                count1 = i-1;
 
                 printf("\n\nThen the Robot from %c will travel to %c by following these instructions\n", START_1, END_1);
                 i = 1;
-                while(path1[i] != -1){
-                        direction = getDir(path1[i], path1[i-1], room->rows, room->cols);
-            				printf("%d: %s\n", i, direction);
-                        i++;
-                        free(direction);
+                repeat = 0;
+                while(path1[i] != -1)
+                {
+						direction = getDir(path1[i], path1[i-1], room->rows, room->cols);
+						if(strcmp(direction, prevDir) == 0)
+						{
+							repeat ++;
+						}
+						else
+						{
+							if(repeat == 0)
+								printf("%s\n", direction);
+							else
+							{
+								printf("%s %d times\n%s\n", prevDir, repeat+1, direction);
+								repeat = 0;
+							}
+						}
+						i++;
+						strcpy(prevDir, direction);
+						free(direction);
                 }
-                printf("End\n");
-	}
+                count2 = i-1;
 
-	printf("\n");
+	}
+    printf("\n\nRobot 1 reached the destination in %d moves\n", count1);
+    printf("Robot 2 reached the destination in %d moves\n", count2);
+
+    free(prevDir);
 	free(path1);
 	free(path2);
 }
@@ -613,7 +724,8 @@ void findPath(Matrix *graph, Matrix *room){
 
 
 
-int main(int args, char **argv){
+int main(int args, char **argv)
+{
 	char *fileName = NULL;
 	Matrix *matrix = NULL;
 	Matrix *graph = NULL;
@@ -624,7 +736,8 @@ int main(int args, char **argv){
 	}
 
 	fileName = argv[1];
-
+	printf("Rows: %d\n", countRow(fileName));
+	printf("Cols: %d\n", countCol(fileName));
 	matrix = readFile(fileName);
 	graph = generateGraph(matrix);
 
@@ -632,6 +745,5 @@ int main(int args, char **argv){
 
 	freeMatrix(matrix);
 	freeMatrix(graph);
-
-return 0;
+	return 0;
 }
