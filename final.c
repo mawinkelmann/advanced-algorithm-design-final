@@ -40,9 +40,6 @@ typedef struct{
  * freeMatrix - Frees all memory allocated by the matrix
  * printMatrix - prints an easy to read version of the maze
  * revArray - Flips the order of a given array
- * rowMajor -
- * rowIndex -
- * colIndex -
 */
 void initMatrix(Matrix *mat){
 	int i =0, j = 0;
@@ -244,14 +241,14 @@ Matrix *readFile(char *fileName){
 	return matrix;
 }
 /*Graph Functions:
- * genGraph -
- * getPath -
- * minDist -
- * dijkstra -
- * delEdge -
- * addEdge -
- * delNode -
- * addNode -
+ * genGraph - generates a graph using a maze held in a matrix
+ * getPath - finds all paths for the robots to exit the maze
+ * minDist - finds the smallest path for each robot
+ * dijkstra - the search algorithm used in for parsing the graph
+ * delEdge - removes an edge from the graph
+ * addEdge - adds an edge t0 the graph
+ * delNode - removes a node from the graph
+ * addNode - adds a node to the graph
  */
 Matrix *generateGraph(Matrix *room){
 	int dimension = (room->rows) * (room->cols);
@@ -465,10 +462,10 @@ void addNodeAndNeighbour(Matrix *graph, int src, int *deletedEdge){
 }
 /*
  * Robot Functions:
- * getDir -
- * findPath -
+ * getDir - finds the directions for the robot to move
+ * findPath - creates the paths for each robot to follow
  */
-char *getDirection(int src, int dest, int rows, int cols){
+char *getDir(int src, int dest, int rows, int cols){
 	char *sol = (char *)malloc(sizeof(char) * 5);
 	memset(sol, '\0', 5);
 
@@ -562,46 +559,45 @@ void findPath(Matrix *graph, Matrix *room){
 	}else if(path2[0] == -1){
 		printf("Unable to second robot\n");
 	}
-
 	if(firstMove == 1){
-		printf("First Robot from %c will traverse to %c by following path\n", START_1, END_1);
+		printf("First the Robot from %c will travel to %c by following these instructions:\n", START_1, END_1);
 
 		i = 1;
 		while(path1[i] != -1){
-			direction = getDirection(path1[i], path1[i-1], room->rows, room->cols);
-			printf("%s -> ", direction);
+			direction = getDir(path1[i], path1[i-1], room->rows, room->cols);
+			printf("%d: %s\n", i, direction);
 			i++;
 			free(direction);
 		}
         printf("End\n");
 
-		printf("\n\nThen Robot from %c will traverse to %c by following path\n", START_2, END_2);
+		printf("\n\nThen the Robot from %c will travel to %c by following these instructions:\n", START_2, END_2);
 		i = 1;
 		while(path2[i] != -1){
-			direction = getDirection(path2[i], path2[i-1], room->rows, room->cols);
-			printf("%s -> ", direction);
+			direction = getDir(path2[i], path2[i-1], room->rows, room->cols);
+			printf("%d: %s\n", i, direction);
 			i++;
 			free(direction);
 		}
         printf("End\n");
 
 	}else if(firstMove == 2){
-		printf("First Robot from %c will traverse to %c by following path\n", START_2, END_2);
+		printf("First the Robot from %c will travel to %c by following these instructions\n", START_2, END_2);
 
                 i = 1;
                 while(path2[i] != -1){
-                        direction = getDirection(path2[i], path2[i-1], room->rows, room->cols);
-                        printf("%s -> ", direction);
+                        direction = getDir(path2[i], path2[i-1], room->rows, room->cols);
+            				printf("%d: %s\n", i, direction);
                         i++;
                         free(direction);
                 }
                 printf("End\n");
 
-                printf("\n\nThen Robot from %c will traverse to %c by following path\n", START_1, END_1);
+                printf("\n\nThen the Robot from %c will travel to %c by following these instructions\n", START_1, END_1);
                 i = 1;
                 while(path1[i] != -1){
-                        direction = getDirection(path1[i], path1[i-1], room->rows, room->cols);
-                        printf("%s -> ", direction);
+                        direction = getDir(path1[i], path1[i-1], room->rows, room->cols);
+            				printf("%d: %s\n", i, direction);
                         i++;
                         free(direction);
                 }
